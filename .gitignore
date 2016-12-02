@@ -1,5 +1,6 @@
 venv/
 pren_dataset_large/
+pren_dataset_mid/
 pren_dataset_small/
 .DS_Store
 .idea/

@@ -10,7 +10,7 @@ from tflearn.data_augmentation import ImageAugmentation
 from tflearn.data_utils import image_preloader
 
 # Load path/class_id image file:
-data_folder = 'data/validation_photos'
+data_folder = './data/validation_photos'
 
 # Build the preloader array, resize images to 128x128
 X, Y = image_preloader(data_folder, image_shape=(128, 128), mode='folder', categorical_labels=True, normalize=True, grayscale=True, files_extension='.jpg')
@@ -46,6 +46,6 @@ network = regression(network, optimizer='adam',
 
 # Train using classifier
 model = tflearn.DNN(network, tensorboard_verbose=0)
-model.load('pren_model_2_mid')
+model.load('./models/model_2')
 
 print(model.predict(X))

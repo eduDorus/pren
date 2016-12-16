@@ -7,3 +7,4 @@ pren_dataset_small/
 .ipynb_checkpoints/
 tensorflow/
 validation_photos/
+models/

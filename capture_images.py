@@ -1,7 +1,8 @@
-import numpy as np
 import cv2
 
 cap = cv2.VideoCapture(0)
+
+#Scale the image to 128 x 128 and set framerate to 10
 cap.set(3, 128)
 cap.set(4, 128)
 cap.set(5, 10)
@@ -17,6 +18,7 @@ while (True):
     # Display the resulting frame
     cv2.imshow('frame', gray)
 
+    # Save image to dataset (root/feature number/image with number)
     name = 'pren_dataset/4/CLASS0_IMG%s.jpg' % i
     cv2.imwrite(name, gray)
     i += 1

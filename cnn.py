@@ -19,7 +19,7 @@ X, Y = image_preloader(data_folder, image_shape=(128, 128), mode='folder', categ
 from sklearn.model_selection import train_test_split
 
 X, X_test, Y, Y_test = train_test_split(X, Y, test_size=0.10, random_state=42)
-X, Y = shuffle(X, Y)
+#X, Y = shuffle(X, Y)
 #Y = to_categorical(Y, 5)
 #Y_test = to_categorical(Y_test, 5)
 
@@ -43,23 +43,26 @@ network = input_data(shape=[None, 128, 128, 1],
                      data_augmentation=img_aug)
 network = conv_2d(network, 32, 7, strides=3, activation='relu')
 network = max_pool_2d(network, 2)
-network = conv_2d(network, 32, 5, strides=2, activation='relu')
+network = conv_2d(network, 64, 5, strides=2, activation='relu')
 network = max_pool_2d(network, 2)
-network = conv_2d(network, 64, 3, strides=1, activation='relu')
+network = conv_2d(network, 128, 3, strides=1, activation='relu')
 network = max_pool_2d(network, 2)
-network = fully_connected(network, 256, activation='relu')
+network = fully_connected(network, 512, activation='relu')
 network = dropout(network, 0.5)
 network = fully_connected(network, 5, activation='softmax')
 network = regression(network, optimizer='adam',
                      loss='categorical_crossentropy',
-                     learning_rate=0.001)
+                     learning_rate=0.01)
 
 # Train using classifier
 model = tflearn.DNN(network, tensorboard_verbose=0)
-model.load('model_3p_3c_2fc_5')
+#model.load('prod_model')
 
-model.fit(X, Y, n_epoch=5, shuffle=True, validation_set=(X_test, Y_test),
-          show_metric=True, batch_size=400, run_id='model_3p_3c_2fc_5')
+model.fit(X, Y, n_epoch=30, shuffle=True, validation_set=0.1,
+          show_metric=True, batch_size=128, run_id='prod_model')
+
+# Evaluate performance on test set
+model.evaluate(X_test, Y_test)
 
 # Save a model
-model.save('model_3p_3c_2fc_5')
+model.save('prod_model')

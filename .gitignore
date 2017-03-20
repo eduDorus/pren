@@ -8,3 +8,4 @@ pren_dataset_small/
 tensorflow/
 validation_photos/
 models/
+__pycache__/

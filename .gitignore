@@ -2,6 +2,7 @@ venv/
 pren_dataset_large/
 pren_dataset_mid/
 pren_dataset_small/
+*.h5
 .DS_Store
 .idea/
 .ipynb_checkpoints/

@@ -9,29 +9,30 @@ from tflearn.layers.estimator import regression
 
 # Load Model
 network = input_data(shape=[None, 128, 128, 1])
-network = conv_2d(network, 32, 3, activation='relu')
+network = conv_2d(network, 16, 3, activation='relu')
 network = max_pool_2d(network, 2)
-network = conv_2d(network, 64, 3, activation='relu')
-network = conv_2d(network, 64, 3, activation='relu')
+network = conv_2d(network, 16, 3, activation='relu')
 network = max_pool_2d(network, 2)
-network = fully_connected(network, 512, activation='relu')
-network = dropout(network, 0.5)
+network = conv_2d(network, 16, 3, activation='relu')
+network = max_pool_2d(network, 2)
+network = fully_connected(network, 128, activation='relu')
+network = dropout(network, 1)
 network = fully_connected(network, 5, activation='softmax')
 network = regression(network, optimizer='adam', loss='categorical_crossentropy', learning_rate=0.001)
 
 model = DNN(network, tensorboard_verbose=0)
-model.load('models/small_prod_model')
+model.load('models/mid_prod_model')
 
 
 # Load Data
 h5f = h5py.File('data/dataset_large.h5', 'r')
-X = h5f['X'][:10]
+X = h5f['X'][:50]
 X = np.array(X).reshape([-1, 128, 128, 1])
 
 
 # Mesure time
 start_time = time.time()
-for i in range(1, 10):
+for i in range(0, 49):
     predication = model.predict([X[i]])
     print(np.round(predication, 2))
 

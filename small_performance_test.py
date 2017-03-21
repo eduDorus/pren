@@ -11,16 +11,15 @@ from tflearn.layers.estimator import regression
 network = input_data(shape=[None, 128, 128, 1])
 network = conv_2d(network, 32, 3, activation='relu')
 network = max_pool_2d(network, 2)
-network = conv_2d(network, 64, 3, activation='relu')
-network = conv_2d(network, 64, 3, activation='relu')
+network = conv_2d(network, 32, 3, activation='relu')
 network = max_pool_2d(network, 2)
-network = fully_connected(network, 512, activation='relu')
+network = fully_connected(network, 128, activation='relu')
 network = dropout(network, 0.5)
 network = fully_connected(network, 5, activation='softmax')
 network = regression(network, optimizer='adam', loss='categorical_crossentropy', learning_rate=0.001)
 
 model = DNN(network, tensorboard_verbose=0)
-model.load('models/prod_model')
+model.load('models/small_prod_model')
 
 
 # Load Data

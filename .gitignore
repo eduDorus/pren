@@ -10,4 +10,5 @@ pren_dataset_small/
 tensorflow/
 validation_photos/
 models/
+data/ampel/
 __pycache__/

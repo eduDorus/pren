@@ -1,3 +1,4 @@
+#%%
 # Import time for performance measurements
 import numpy as np
 from picamera import PiCamera, array
@@ -13,7 +14,7 @@ from tflearn.data_augmentation import ImageAugmentation
 START_TIME = time()
 
 # Model URL
-MODEL_URL = '../models/final_model_aug_prep_4'
+MODEL_URL = '../models/final_model_4_160/final_model_4_160'
 
 # Real-time data augmentation (This is only used while training the DNN)
 img_aug = ImageAugmentation()
@@ -30,15 +31,15 @@ print("--- {0} seconds for image preprocessing/augmentation functions ---".forma
 network = input_data(shape=[None, 120, 160, 3],
                      data_augmentation=img_aug,
                      data_preprocessing=img_prep)
-network = conv_2d(network, 64, 5, activation='relu')
-network = max_pool_2d(network, 4)
-network = conv_2d(network, 64, 3, activation='relu')
+network = conv_2d(network, 16, 7, activation='relu', name="conv2d-1")
 network = max_pool_2d(network, 2)
-network = conv_2d(network, 128, 3, activation='relu')
+network = conv_2d(network, 32, 5, activation='relu', name="conv2d-2")
 network = max_pool_2d(network, 2)
-network = fully_connected(network, 256, activation='relu')
-network = dropout(network, 1)
-network = fully_connected(network, 5, activation='softmax')
+network = conv_2d(network, 64, 3, activation='relu', name="conv2d-3")
+network = max_pool_2d(network, 2)
+network = fully_connected(network, 128, activation='relu')
+network = dropout(network, 0.5)
+network = fully_connected(network, 7, activation='softmax')
 network = regression(network, optimizer='adam',
                      loss='categorical_crossentropy',
                      learning_rate=0.001)
@@ -51,6 +52,7 @@ print("--- {0} seconds for creating the cnn model ---".format(round(time() - STA
 model.load(MODEL_URL)
 print("--- {0} seconds for loading the model ---".format(round(time() - START_TIME)))
 
+#%%
 # Capture images for prediction
 with PiCamera() as camera:
     camera.resolution = (160, 120)

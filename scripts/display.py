@@ -41,8 +41,8 @@ def two():
 
 def three():
     GPIO.output(2, GPIO.HIGH)
-    GPIO.output(3, GPIO.LOW)
-    GPIO.output(4, GPIO.HIGH)
+    GPIO.output(3, GPIO.HIGH)
+    GPIO.output(4, GPIO.LOW)
     GPIO.output(17, GPIO.LOW)
 
 

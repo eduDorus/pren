@@ -2,9 +2,10 @@ from time import sleep
 from picamera import PiCamera
 
 # Set run id
+RUN_ID = 0
+
 FPS = 4
 SLEEP_TIME = 1 / FPS
-RUN_ID = 0
 PATH = 'run/${0}'.format(RUN_ID)
 BOUNDARY = 30 * FPS
 CAPTURE_ID = 0

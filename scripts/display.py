@@ -1,4 +1,3 @@
-import time
 import RPi.GPIO as GPIO
 
 # GPIO 2 A
@@ -8,7 +7,7 @@ import RPi.GPIO as GPIO
 # GPIO 27 BI
 
 # RPi.GPIO Layout verwenden (wie Pin-Nummern)
-GPIO.setmode(GPIO.BOARD)
+GPIO.setmode(GPIO.BCM)
 
 # Pin 11 (GPIO 17) auf Output setzen
 GPIO.setup(2, GPIO.OUT)

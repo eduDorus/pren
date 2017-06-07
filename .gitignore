@@ -1,8 +1,15 @@
 
 venv
+<<<<<<< HEAD
+=======
+pren_dataset_large
+pren_dataset_mid
+pren_dataset_small
+>>>>>>> 2c2ce83c18d39edfc62cfe996b31413c26547fe7
 .DS_Store
 .idea
 .ipynb_checkpoints
 tensorflow
 __pycache__
 .vscode
+*.pyc

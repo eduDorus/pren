@@ -1,68 +1,89 @@
 
 # coding: utf-8
 
-# In[ ]:
+# # Production ready crosslight detection
 
-# Imports
+# ### Lets create our model and load the weights
+
+# In[5]:
+
 import display
 display.five()
 
-from tflearn import DNN
-from tflearn.layers.core import input_data, dropout, fully_connected
-from tflearn.layers.conv import conv_2d, max_pool_2d
-from tflearn.layers.estimator import regression
-import numpy as np
-display.four()
-
-# In[ ]:
-
-# Neural Net
-network = input_data(shape=[None, 224, 224, 3])
-network = conv_2d(network, 32, 5, activation='relu', name="conv2d-1")
-network = max_pool_2d(network, 2)
-network = conv_2d(network, 32, 3, activation='relu', name="conv2d-2")
-network = max_pool_2d(network, 2)
-network = fully_connected(network, 96, activation='relu')
-network = dropout(network, 0.5)
-network = fully_connected(network, 96, activation='relu')
-network = fully_connected(network, 2, activation='softmax')
-network = regression(network, optimizer='adam',
-                     loss='categorical_crossentropy',
-                     learning_rate=0.001)
-
-model = DNN(network, tensorboard_verbose=0)
-display.three()
-
-
-# In[ ]:
-
-model.load('/home/pi/repositories/pren/models/model_crosslight')
-display.two()
-
-# In[ ]:
+from keras.models import Sequential
+from keras.layers import Conv2D, MaxPooling2D
+from keras.layers import Activation, Dropout, Flatten, Dense
 
 from picamera import PiCamera, array
 from time import sleep
+from numpy import around
+
+image_height = 128
+image_width = 128
+
+display.four()
 
 
-# In[ ]:
+# In[6]:
+
+model = Sequential()
+model.add(Conv2D(8, (3, 3), input_shape=(image_height, image_width, 3)))
+model.add(Activation('relu'))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+
+model.add(Conv2D(8, (3, 3)))
+model.add(Activation('relu'))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+
+model.add(Conv2D(8, (3, 3)))
+model.add(Activation('relu'))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+
+# the model so far outputs 3D feature maps (height, width, features)
+
+model.add(Flatten())  # this converts our 3D feature maps to 1D feature vectors
+model.add(Dense(64))
+model.add(Activation('relu'))
+model.add(Dropout(1))
+model.add(Dense(1))
+model.add(Activation('sigmoid'))
+
+model.compile(loss='binary_crossentropy',
+              optimizer='adam',
+              metrics=['accuracy'])
+display.three()
+
+model.load_weights('/home/pi/repositories/pren/models/crosslight.h5')
+
+display.two()
+
+
+# ### Raspberry camera logic
+
+# In[16]:
 
 with PiCamera() as camera:
-    camera.resolution = (224, 224)
+    camera.resolution = (image_height, image_width)
+    
+    # Sleep to let camera adjust to the light
     sleep(1)
-    counter = 0
-    display.one()
+    
+    #display.one()
     with array.PiRGBArray(camera) as output:
-        while counter < 1:
+        while True:
             camera.capture(output, 'rgb')
-            prediction = np.around(model.predict(output.array.astype(float).reshape((1, 224, 224, 3))), 3)
-            green = prediction[0]
-            # print(green[0])
-            if green[1] > 0.90:
-                display.zero()
-            if green[0] > 0.90:
-                counter += 1
+            
+            x = output.array
+            x = x.reshape((1,) + x.shape)
+            x = x * (1./255)
+            
+            prediction = around(model.predict(x), 3)[0][0]
+            
+            display.zero()
+            
+            if prediction < 0.05:
+                print("go")
+                break
+            
             output.truncate(0)
-        print("go")
-
 

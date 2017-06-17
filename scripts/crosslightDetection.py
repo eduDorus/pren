@@ -6,8 +6,9 @@ from keras.layers import Conv2D, MaxPooling2D
 from keras.layers import Dropout, Flatten, Dense
 
 from picamera import PiCamera, array
-from time import sleep
+from time import strftime, sleep
 from numpy import around
+import os
 
 
 def loadCrosslightModel(image_height, image_width):
@@ -23,9 +24,9 @@ def loadCrosslightModel(image_height, image_width):
     model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2), name='block3_pool'))
 
     model.add(Flatten())
-    model.add(Dense(64), activation='relu')
+    model.add(Dense(64, activation='relu'))
     model.add(Dropout(1))
-    model.add(Dense(1), activation='sigmoid')
+    model.add(Dense(1, activation='sigmoid'))
 
     model.compile(loss='binary_crossentropy',
                   optimizer='adam',
@@ -54,7 +55,7 @@ def loadCifferModel(image_height, image_width):
     model.add(Flatten())
     model.add(Dense(96, activation='relu', name="dense1"))
     model.add(Dropout(1))
-    model.add(Dense(6), activation='sigmoid')
+    model.add(Dense(6, activation='sigmoid'))
 
     model.compile(loss='categorical_crossentropy',
                   optimizer='adam',
@@ -92,7 +93,7 @@ def captureContinouse(timeInSeconds):
 
     count = timeInSeconds * 5
 
-    directory = '../images/ciffer/run/{0}'.format(time.strftime("%d%m%Y-%H%M"))
+    directory = '../images/ciffer/run/{0}'.format(strftime("%d%m%Y-%H%M"))
 
     if not os.path.exists(directory):
         os.makedirs(directory)

@@ -58,3 +58,9 @@ def five():
     GPIO.output(3, GPIO.LOW)
     GPIO.output(4, GPIO.HIGH)
     GPIO.output(17, GPIO.LOW)
+
+def eight():
+    GPIO.output(2, GPIO.LOW)
+    GPIO.output(3, GPIO.LOW)
+    GPIO.output(4, GPIO.LOW)
+    GPIO.output(17, GPIO.HIGH)

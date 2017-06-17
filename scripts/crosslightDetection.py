@@ -6,9 +6,10 @@ from keras.layers import Conv2D, MaxPooling2D
 from keras.layers import Dropout, Flatten, Dense
 
 from picamera import PiCamera, array
-from time import strftime, sleep
+from time import strftime, sleep, time
 from numpy import around
 import os
+import sys
 
 
 def loadCrosslightModel(image_height, image_width):
@@ -71,6 +72,8 @@ def crosslightDetection(image_height, image_width, model):
         camera.resolution = (image_height, image_width)
         sleep(1)
 
+        red_counter = 0
+
         with array.PiRGBArray(camera) as output:
             while True:
                 camera.capture(output, 'rgb')
@@ -80,39 +83,53 @@ def crosslightDetection(image_height, image_width, model):
                 x = x * (1. / 255)
 
                 prediction = around(model.predict(x), 3)[0][0]
+                #print(prediction)
 
-                display.zero()
+                if prediction > 0.80:
+                    red_counter += 1
 
-                if prediction < 0.10:
-                    print("go")
+                if red_counter == 5:
+                    display.zero()
+                    # timer = time()
+
+                # if ((time() - timer) > 50):
+                #     print("0")
+                #     sys.stdout.flush()
+                #     break
+
+                if prediction < 0.30 and red_counter > 5:
+                    print("0")
+                    sys.stdout.flush()
                     break
 
                 output.truncate(0)
 
-def captureContinouse(timeInSeconds):
+def captureContinouse(image_height, image_width, timeInSeconds):
 
-    count = timeInSeconds * 5
+    count = timeInSeconds
 
     directory = '../images/ciffer/run/{0}'.format(strftime("%d%m%Y-%H%M"))
 
     if not os.path.exists(directory):
         os.makedirs(directory)
 
-    with picamera.PiCamera() as camera:
+    with PiCamera() as camera:
         camera.exposure_mode = 'sports'
         camera.resolution = (image_height, image_width)
         sleep(0.5)
 
         for i, filename in enumerate(camera.capture_continuous(directory + '/image{counter:03d}.jpg')):
-            time.sleep(0.2)
-            if i == count:
+            sleep(0.2)
+            print(i, count)
+            if i >= count:
                 break
 
     return directory
 
 def predictCiffer(directory):
-    test_datagen = ImageDataGenerator(rescale=1./255)
-
+    print("4")
+    display.four()
+    sys.stdout.flush()
 
 def logic():
 
@@ -124,8 +141,9 @@ def logic():
     crosslightDetection(128, 128, crosslightModel)
 
     # Capture Ride
-    directory = captureContinouse(50)
+    directory = captureContinouse(160, 240, 35)
 
     # Make Prediction
+    predictCiffer(directory)
 
 logic()

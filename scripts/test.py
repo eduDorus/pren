@@ -3,11 +3,10 @@ import sys
 import display
 
 sleep(3)
-print("go")
-print()
+print("0")
 sys.stdout.flush()
 
-sleep(5)
+sleep(20)
 print("4")
-display.eight()
+display.four()
 sys.stdout.flush()

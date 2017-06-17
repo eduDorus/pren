@@ -6,10 +6,10 @@ import RPi.GPIO as GPIO
 # GPIO 17 D
 # GPIO 27 BI
 
-# RPi.GPIO Layout verwenden (wie Pin-Nummern)
+# RPi.GPIO BCM Layout verwenden (Pin-Nummern)
 GPIO.setmode(GPIO.BCM)
 
-# Pin 11 (GPIO 17) auf Output setzen
+# Pins z.B 11 (GPIO 17) auf Output setzen
 GPIO.setup(2, GPIO.OUT)
 GPIO.setup(3, GPIO.OUT)
 GPIO.setup(4, GPIO.OUT)

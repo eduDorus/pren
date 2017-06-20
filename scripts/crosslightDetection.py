@@ -1,5 +1,5 @@
 import display
-display.five()
+display.eight()
 
 from keras.models import Sequential
 from keras.layers import Conv2D, MaxPooling2D
@@ -106,29 +106,41 @@ def crosslightDetection(image_height, image_width, model):
 
 def captureContinouse(image_height, image_width, timeInSeconds):
 
-    count = timeInSeconds
+    start_time = time()
+    CAPTURE_ID = 0
 
-    directory = '../images/ciffer/run/{0}'.format(strftime("%d%m%Y-%H%M"))
+    directory = '/home/pi/repositories/pren/images/ciffer/run/{0}'.format(strftime("%d%m%Y-%H%M"))
 
     if not os.path.exists(directory):
         os.makedirs(directory)
 
     with PiCamera() as camera:
+        camera.resolution = (image_width, image_height)
         camera.exposure_mode = 'sports'
-        camera.resolution = (image_height, image_width)
-        sleep(0.5)
 
-        for i, filename in enumerate(camera.capture_continuous(directory + '/image{counter:03d}.jpg')):
+        while True:
             sleep(0.2)
-            print(i, count)
-            if i >= count:
+            camera.capture(directory + '/image{0}_{1}.jpg'.format(strftime("%H%M%s"), CAPTURE_ID))
+            CAPTURE_ID += 1
+
+            if timeInSeconds < (time() - start_time):
                 break
+
+    # with PiCamera() as camera:
+    #     camera.exposure_mode = 'sports'
+    #     camera.resolution = (image_width, image_height)
+    #     sleep(0.2)
+
+    #     for i, filename in enumerate(camera.capture_continuous(directory + '/image{counter:03d}.jpg')):
+    #         sleep(0.2)
+    #         if i >= count:
+    #             break
 
     return directory
 
 def predictCiffer(directory):
-    print("4")
     display.four()
+    print("4")
     sys.stdout.flush()
 
 def logic():
@@ -141,7 +153,7 @@ def logic():
     crosslightDetection(128, 128, crosslightModel)
 
     # Capture Ride
-    directory = captureContinouse(160, 240, 35)
+    directory = captureContinouse(160, 240, 37)
 
     # Make Prediction
     predictCiffer(directory)

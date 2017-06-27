@@ -41,21 +41,25 @@ def loadCrosslightModel(image_height, image_width):
 def loadCifferModel(image_height, image_width):
 
     model = Sequential()
-    model.add(Conv2D(32, (3, 3), activation='relu', padding='same', name='block1_conv1', input_shape=(image_height, image_width, 3)))
-    model.add(Conv2D(32, (3, 3), activation='relu', padding='same', name='block1_conv2',))
-    model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2), name='block1_pool'))
+    model.add(Conv2D(16, (7, 7), activation='relu', padding='same', name='block1_conv1', input_shape=(image_height, image_width, 1)))
+    model.add(Conv2D(16, (7, 7), activation='relu', padding='same', name='block1_conv2',))
+    model.add(MaxPooling2D(pool_size=(4, 4), strides=(4, 4), name='block1_pool'))
 
-    model.add(Conv2D(32, (3, 3), activation='relu', padding='same', name='block2_conv1',))
-    model.add(Conv2D(32, (3, 3), activation='relu', padding='same', name='block2_conv2',))
-    model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2), name='block2_pool'))
+    model.add(Conv2D(32, (5, 5), activation='relu', padding='same', name='block2_conv1',))
+    model.add(Conv2D(32, (5, 5), activation='relu', padding='same', name='block2_conv2',))
+    model.add(MaxPooling2D(pool_size=(4, 4), strides=(4, 4), name='block2_pool'))
 
-    model.add(Conv2D(32, (3, 3), activation='relu', padding='same', name='block3_conv1',))
-    model.add(Conv2D(32, (3, 3), activation='relu', padding='same', name='block3_conv2',))
+    model.add(Conv2D(64, (3, 3), activation='relu', padding='same', name='block3_conv1',))
+    model.add(Conv2D(64, (3, 3), activation='relu', padding='same', name='block3_conv2',))
     model.add(MaxPooling2D(pool_size=(4, 4), strides=(4, 4), name='block3_pool'))
 
+    # the model so far outputs 3D feature maps (height, width, features)
+
+    # this converts our 3D feature maps to 1D feature vectors
     model.add(Flatten())
-    model.add(Dense(96, activation='relu', name="dense1"))
-    model.add(Dropout(1))
+    model.add(Dense(128, activation='relu', name="fc-1"))
+    model.add(Dropout(0.8))
+    model.add(Dense(128, activation='relu', name="fc-2"))
     model.add(Dense(6, activation='sigmoid'))
 
     model.compile(loss='categorical_crossentropy',
@@ -71,7 +75,7 @@ def crosslightDetection(image_height, image_width, model):
     with PiCamera() as camera:
         camera.resolution = (image_height, image_width)
         sleep(1)
-
+        start_time = 0
         red_counter = 0
 
         with array.PiRGBArray(camera) as output:
@@ -90,14 +94,14 @@ def crosslightDetection(image_height, image_width, model):
 
                 if red_counter == 5:
                     display.zero()
-                    # timer = time()
+                    start_time = time()
 
-                # if ((time() - timer) > 50):
-                #     print("0")
-                #     sys.stdout.flush()
-                #     break
+                if ((time() - start_time) > 60):
+                    print("0")
+                    sys.stdout.flush()
+                    break
 
-                if prediction < 0.30 and red_counter > 5:
+                if (prediction < 0.20 and red_counter > 5):
                     print("0")
                     sys.stdout.flush()
                     break
@@ -147,13 +151,13 @@ def logic():
 
     # Load Models
     crosslightModel = loadCrosslightModel(128, 128)
-    cifferModel = loadCifferModel(160, 240)
+    cifferModel = loadCifferModel(256, 256)
 
     # Detect Crosslight
     crosslightDetection(128, 128, crosslightModel)
 
     # Capture Ride
-    directory = captureContinouse(160, 240, 37)
+    directory = captureContinouse(256, 256, 37)
 
     # Make Prediction
     predictCiffer(directory)

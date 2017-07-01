@@ -7,7 +7,7 @@ from keras.layers import Dropout, Flatten, Dense
 
 from picamera import PiCamera, array
 from time import strftime, sleep, time
-from numpy import around
+import numpy as np
 import os
 import sys
 
@@ -86,7 +86,7 @@ def crosslightDetection(image_height, image_width, model):
                 x = x.reshape((1,) + x.shape)
                 x = x * (1. / 255)
 
-                prediction = around(model.predict(x), 3)[0][0]
+                prediction = np.around(model.predict(x), 3)[0][0]
                 #print(prediction)
 
                 if prediction > 0.80:
@@ -108,44 +108,68 @@ def crosslightDetection(image_height, image_width, model):
 
                 output.truncate(0)
 
-def captureContinouse(image_height, image_width, timeInSeconds):
 
-    start_time = time()
-    CAPTURE_ID = 0
-
-    directory = '/home/pi/repositories/pren/images/ciffer/run/{0}'.format(strftime("%d%m%Y-%H%M"))
-
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-
+def cifferDetection(image_height, image_width, model):
+    
     with PiCamera() as camera:
-        camera.resolution = (image_width, image_height)
-        camera.exposure_mode = 'sports'
+        with array.PiRGBArray(camera) as stream:
 
-        while True:
-            sleep(0.2)
-            camera.capture(directory + '/image{0}_{1}.jpg'.format(strftime("%H%M%s"), CAPTURE_ID))
-            CAPTURE_ID += 1
+            # Camera Settings
+            camera.resolution = (image_height, image_width)
+            camera.framerate = 15
+            camera.exposure_mode = 'sports'
+            #camera.awb_mode = 'fluorescent
 
-            if timeInSeconds < (time() - start_time):
-                break
+            # Warum Up for Camera'
+            sleep(0.5)
 
-    # with PiCamera() as camera:
-    #     camera.exposure_mode = 'sports'
-    #     camera.resolution = (image_width, image_height)
-    #     sleep(0.2)
+            while True:
+                camera.capture(stream, 'rgb', use_video_port=True)
 
-    #     for i, filename in enumerate(camera.capture_continuous(directory + '/image{counter:03d}.jpg')):
-    #         sleep(0.2)
-    #         if i >= count:
-    #             break
+                # Process array for CNN prediction
+                x = stream.array
+                x = np.dot(x[...,:3], [.3, .6, .1])
 
-    return directory
+                # Set batchsize to 1 for single prediction
+                x = x.reshape((1,) + x.shape)
 
-def predictCiffer(directory):
-    display.four()
-    print("4")
-    sys.stdout.flush()
+                # Set color channel to 1 for grayscale image
+                x = x.reshape(x.shape + (1,))
+                x = x * (1. / 255)
+
+                prediction = np.around(model.predict(x), 2)[0]
+                stream.truncate(0)
+
+                if prediction[0] > 0.90:
+                    display.one()
+                    print("1")
+                    sys.stdout.flush()
+                    break
+
+                if prediction[1] > 0.90:
+                    display.two()
+                    print("2")
+                    sys.stdout.flush()
+                    break
+
+                if prediction[2] > 0.90:
+                    display.tree()
+                    print("3")
+                    sys.stdout.flush()
+                    break
+
+                if prediction[3] > 0.90:
+                    display.four()
+                    print("4")
+                    sys.stdout.flush()
+                    break
+
+                if prediction[4] > 0.90:
+                    display.five()
+                    print("5")
+                    sys.stdout.flush()
+                    break   
+
 
 def logic():
 
@@ -156,10 +180,7 @@ def logic():
     # Detect Crosslight
     crosslightDetection(128, 128, crosslightModel)
 
-    # Capture Ride
-    directory = captureContinouse(256, 256, 37)
-
-    # Make Prediction
-    predictCiffer(directory)
+    # predict Ciffer
+    cifferDetection(256, 256, cifferModel)
 
 logic()
